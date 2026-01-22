@@ -68,7 +68,7 @@ Found a bug or have a suggestion? The community is here to help!
 
 This project is part of the Ascendara ecosystem
 
-Licensed under [CC BY-NC 1.0 Universal](./LICENSE) - 2025 tagoWorks
+Licensed under [MIT](./LICENSE) - 2026 tagoWorks
 
 ### Get in Touch
 - Email: [santiago@tago.works](mailto:santiago@tago.works)
