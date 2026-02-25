@@ -20,9 +20,13 @@
         "*://*.spyderrock.com/*",
         "*://*.flashbang.sh/*",
         "*://*.gofile.io/*",
+        "*://*.pixeldrain.com/*",
+        "*://tunnel1.dlproxy.uk/*",
         "*://*.dlproxy.site/*",
         "*://*.qiwi.gg/*",
         "*://*.buzzheavier.com/*",
+        "*://*.vikingfile.com/*",
+        "*://*.r2.cloudflarestorage.com/*",
         "*://*.steamrip.com/*"
     ],
     "icons": {
