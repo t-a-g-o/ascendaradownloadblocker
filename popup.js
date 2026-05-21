@@ -9,7 +9,9 @@ const defaultBlockedDomains = [
   'megadb.xyz',
   'pixeldrain.com',
   'spyderrock.com',
-  'vikingfile.com'
+  'vikingfile.com',
+  'bzzhr.to',
+  'fafda.to'
 ];
 
 // Wait for DOM to be fully loaded
