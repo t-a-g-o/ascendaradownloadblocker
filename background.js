@@ -238,7 +238,9 @@ const defaultBlockedDomains = [
   'gofile.io',
   'megadb.xyz',
   'pixeldrain.com',
-  'spyderrock.com'
+  'spyderrock.com',
+  'bzzhr.to',
+  'fafda.to'
 ];
 
 // Fetch blocked domains from API
@@ -249,13 +251,15 @@ async function fetchBlockedDomains() {
     const data = await response.json();
     if (data && data.forwardingLinks) {
       // Extract hostnames from the forwardingLinks values
-      return Object.values(data.forwardingLinks).map(url => {
+      const apiDomains = Object.values(data.forwardingLinks).map(url => {
         try {
           return new URL(url.replace(/\\\//g, '/')).hostname;
         } catch (e) {
           return null;
         }
       }).filter(Boolean);
+      // Always merge with hardcoded defaults so they are never dropped by API
+      return [...new Set([...defaultBlockedDomains, ...apiDomains])];
     }
   } catch (e) {
     console.error('Failed to fetch blocked domains:', e);
@@ -299,12 +303,16 @@ async function handleDownload(downloadItem, suggest) {
     return;
   }
 
-  const domain = extractDomain(url);
+  // Use the original URL for domain matching so CDN redirects don't bypass the check
+  const domain = extractDomain(downloadItem.url || url);
   
   try {
     const data = await browserAPI.storage.sync.get(['isEnabled', 'blockedDomains']);
     const isEnabled = data.isEnabled ?? true;
-    const blockedDomains = data.blockedDomains || defaultBlockedDomains;
+    // Always merge stored domains with hardcoded defaults so new defaults are
+    // never silently dropped when storage was populated before the update
+    const storedDomains = data.blockedDomains || [];
+    const blockedDomains = [...new Set([...defaultBlockedDomains, ...storedDomains])];
     
     if (isEnabled && isDomainBlocked(domain, blockedDomains)) {
       try {
