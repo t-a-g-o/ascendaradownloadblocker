@@ -32,7 +32,8 @@
         "*://*.pixeldrain.com/*",
         "*://*.vikingfile.com/*",
         "*://*.r2.cloudflarestorage.com/*",
-        "*://*.steamrip.com/*"
+        "*://*.steamrip.com/*",
+        "*://steamrip.com/*"
     ],
     "web_accessible_resources": ["cookie-popup.html"],
     "icons": {

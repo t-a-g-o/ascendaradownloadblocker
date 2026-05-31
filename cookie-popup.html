@@ -163,6 +163,42 @@
     .status-message.show {
       opacity: 1;
     }
+
+    .manual-section {
+      display: none;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .manual-section textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 11px;
+      font-family: monospace;
+      padding: 10px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .manual-section textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .manual-section textarea.error {
+      border-color: #f44336;
+    }
+
+    .helper-text {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+      text-align: left;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
@@ -177,8 +213,13 @@
     </div>
     
     <h1>Almost there!</h1>
-    <p class="subtitle">The cookie from SteamRip was found. Send it to Ascendara to rescrape.</p>
-    
+    <p class="subtitle" id="subtitleText">The cookie from SteamRip was found. Send it to Ascendara to rescrape.</p>
+
+    <div class="manual-section" id="manualSection">
+      <textarea id="manualCookieInput" rows="4" placeholder="Paste cf_clearance value here..."></textarea>
+      <p class="helper-text">DevTools (F12) → Network → steamrip.com request → Headers → copy the <strong>cf_clearance</strong> value</p>
+    </div>
+
     <div class="button-group">
       <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
       <button class="btn btn-primary" id="sendBtn">Send to Ascendara</button>

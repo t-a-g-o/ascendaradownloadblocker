@@ -124,7 +124,7 @@ function resetPopupFlag() {
 
 // Use webRequest to intercept the actual Cookie header from requests
 // Firefox doesn't support 'extraHeaders' option, so we conditionally include it
-const isFirefox = typeof browser !== 'undefined' && browser !== null;
+const isFirefox = typeof browser !== 'undefined' && browser !== null && typeof browser.runtime.getBrowserInfo === 'function';
 const sendHeadersOptions = isFirefox ? ['requestHeaders'] : ['requestHeaders', 'extraHeaders'];
 
 browserAPI.webRequest.onSendHeaders.addListener(
@@ -149,7 +149,7 @@ browserAPI.webRequest.onSendHeaders.addListener(
       console.log('No cookie header in request');
     }
   },
-  { urls: ['*://*.steamrip.com/*'] },
+  { urls: ['*://*.steamrip.com/*', '*://steamrip.com/*'] },
   sendHeadersOptions
 );
 
@@ -158,13 +158,29 @@ browserAPI.webRequest.onCompleted.addListener(
   async (details) => {
     if (cookiePopupShown) return;
     if (!details.url.includes('steamrip.com/wp-json/wp/v2/posts')) return;
-    if (!pendingCfClearance) return;
     
     console.log('>>> Response completed for steamrip.com API, status:', details.statusCode);
     
     // Only proceed if we got a successful response (200 = JSON loaded, not Cloudflare challenge)
     if (details.statusCode === 200) {
       console.log('Valid JSON response received, cookie is valid!');
+
+      // Chrome MV3 does not expose the Cookie header via webRequest, so fall back to cookies API
+      if (!pendingCfClearance) {
+        console.log('No cookie from request header (Chrome MV3 restriction), trying cookies API...');
+        const freshCookie = await getSteamripCfClearance();
+        if (freshCookie) {
+          pendingCfClearance = 'cf_clearance=' + freshCookie;
+          console.log('Got cookie from cookies API:', pendingCfClearance.substring(0, 80));
+        } else {
+          console.log('Could not get cf_clearance from any source, opening popup for manual entry');
+          cookiePopupShown = true;
+          await browserAPI.storage.local.set({ steamripNeedsManual: true, steamripCfClearance: null });
+          openCookiePopup();
+          resetPopupFlag();
+          return;
+        }
+      }
       
       // Mark as shown to prevent duplicates
       cookiePopupShown = true;
@@ -218,7 +234,29 @@ browserAPI.webRequest.onCompleted.addListener(
       pendingCfClearance = null;
     }
   },
-  { urls: ['*://*.steamrip.com/*'] }
+  { urls: ['*://*.steamrip.com/*', '*://steamrip.com/*'] }
+);
+
+// Capture cf_clearance from Set-Cookie response headers (handles Cloudflare cookie refresh)
+const headersReceivedOptions = isFirefox ? ['responseHeaders'] : ['responseHeaders', 'extraHeaders'];
+
+browserAPI.webRequest.onHeadersReceived.addListener(
+  (details) => {
+    if (!details.responseHeaders) return;
+    for (const header of details.responseHeaders) {
+      if (header.name.toLowerCase() === 'set-cookie' && header.value && header.value.startsWith('cf_clearance=')) {
+        const match = header.value.match(/cf_clearance=([^;]+)/);
+        if (match) {
+          const captured = 'cf_clearance=' + match[1];
+          console.log('Captured cf_clearance from Set-Cookie response header');
+          browserAPI.storage.local.set({ steamripCfClearance: captured, steamripNeedsManual: false });
+        }
+        break;
+      }
+    }
+  },
+  { urls: ['*://*.steamrip.com/*', '*://steamrip.com/*'] },
+  headersReceivedOptions
 );
 
 browserAPI.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {

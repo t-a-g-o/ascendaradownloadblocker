@@ -29,7 +29,8 @@
         "*://*.fafda.to/*",
         "*://*.vikingfile.com/*",
         "*://*.r2.cloudflarestorage.com/*",
-        "*://*.steamrip.com/*"
+        "*://*.steamrip.com/*",
+        "*://steamrip.com/*"
     ],
     "icons": {
         "16": "icons/ascendara-16.png",
