@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Ascendara Download Handler",
-    "version": "4.1",
+    "version": "4.2",
     "description": "Sends downloads from known (or added) providers straight to Ascendara.",
     "permissions": [
       "downloads",
